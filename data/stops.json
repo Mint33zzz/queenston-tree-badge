@@ -1,0 +1,18 @@
+[
+  {"id":"tour-start","name":"Tour start","short":"Tour start","type":"poi","emoji":"📍","lat":43.1585512,"lng":-79.0521692,"desc":"Starting point of the tree tour.","hint":"Head north to Sweetgum."},
+  {"id":"sweetgum","name":"Sweetgum","short":"Sweetgum","type":"tree","emoji":"⭐","lat":43.1600635,"lng":-79.0519785,"desc":"Sweetgum tree; look for star-shaped leaves and spiky fruits.","hint":"Continue to Red Mulberry."},
+  {"id":"red-mulberry","name":"Red Mulberry","short":"Red Mulberry","type":"tree","emoji":"🍒","lat":43.1601614,"lng":-79.0529066,"desc":"Red mulberry; edible berries in summer.","hint":"Walk to Eastern White."},
+  {"id":"eastern-white-1","name":"Eastern White","short":"Eastern White","type":"tree","emoji":"🌲","lat":43.1604001,"lng":-79.0531587,"desc":"Eastern white pine; soft needles in bundles of five.","hint":"Find the Landscape of Northern area."},
+  {"id":"landscape-northern","name":"Landscape of Northern","short":"Landscape N","type":"poi","emoji":"🏕️","lat":43.1594814,"lng":-79.053352,"desc":"Northern landscape feature.","hint":"Another Eastern White is nearby."},
+  {"id":"eastern-white-2","name":"Eastern White","short":"Eastern White","type":"tree","emoji":"🌲","lat":43.159187,"lng":-79.0534094,"desc":"Eastern white pine.","hint":"Head to the Tuliptree."},
+  {"id":"tuliptree","name":"Tuliptree","short":"Tuliptree","type":"tree","emoji":"🌷","lat":43.1583205,"lng":-79.0555326,"desc":"Tuliptree; tulip-shaped flowers in spring.","hint":"Look for Norway Spruce."},
+  {"id":"norway-spruce","name":"Norway Spruce","short":"Norway Spruce","type":"tree","emoji":"🎄","lat":43.1589675,"lng":-79.0567686,"desc":"Norway spruce; classic Christmas tree.","hint":"Continue to Scarlet Oak Grove."},
+  {"id":"scarlet-oak-grove","name":"Scarlet Oak Grove","short":"Scarlet Oak","type":"tree","emoji":"🍂","lat":43.1583343,"lng":-79.0585671,"desc":"Scarlet oak grove; brilliant red fall color.","hint":"Find the Bruce trail marker."},
+  {"id":"bruce-trail-marker","name":"Bruce trail marker","short":"Bruce trail","type":"poi","emoji":"🥾","lat":43.1584441,"lng":-79.0588162,"desc":"Bruce Trail waypoint marker.","hint":"Head to Paper Birch."},
+  {"id":"paper-birch","name":"Paper Birch","short":"Paper Birch","type":"tree","emoji":"🌳","lat":43.1580231,"lng":-79.0568342,"desc":"Paper birch; distinctive white bark.","hint":"Look for Red Maple."},
+  {"id":"red-maple","name":"Red Maple","short":"Red Maple","type":"tree","emoji":"🍁","lat":43.1576814,"lng":-79.0548904,"desc":"Red maple; vibrant red fall foliage.","hint":"Sugar Maple is close by."},
+  {"id":"sugar-maple","name":"Sugar Maple","short":"Sugar Maple","type":"tree","emoji":"🍯","lat":43.1577949,"lng":-79.0547589,"desc":"Sugar maple; source of maple syrup.","hint":"Find the Japanese ornamental."},
+  {"id":"japanese-ornamental","name":"Japanese ornamental","short":"Japanese orna","type":"tree","emoji":"🌸","lat":43.1583135,"lng":-79.0526507,"desc":"Japanese ornamental tree.","hint":"Walk to Sycamore."},
+  {"id":"sycamore","name":"Sycamore","short":"Sycamore","type":"tree","emoji":"🍃","lat":43.157907,"lng":-79.0513421,"desc":"Sycamore; mottled bark and large leaves.","hint":"Final stop: the Cairn."},
+  {"id":"cairn","name":"Cairn","short":"Cairn","type":"poi","emoji":"⛰️","lat":43.1580165,"lng":-79.0512795,"desc":"Cairn — tour endpoint.","hint":"Tour complete — great job!"}
+]
