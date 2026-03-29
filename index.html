@@ -221,6 +221,94 @@ main {
   box-shadow: 0 4px 20px rgba(26,46,38,.06);
 }
 
+/* Map: prominent tour start pin */
+.map-pin-start-wrap.leaflet-marker-icon {
+  background: none !important;
+  border: none !important;
+}
+.map-pin-start {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+.map-pin-start .map-start-ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid #c9a227;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff9e6, #ffe8a3);
+  box-shadow: 0 4px 14px rgba(201,162,39,.45), 0 0 0 2px rgba(255,255,255,.9);
+  animation: start-ring-pulse 2.2s ease-in-out infinite;
+}
+.map-pin-start.current .map-start-ring {
+  animation: start-ring-pulse 1.4s ease-in-out infinite;
+}
+@keyframes start-ring-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 14px rgba(201,162,39,.45), 0 0 0 2px rgba(255,255,255,.9); }
+  50% { transform: scale(1.06); box-shadow: 0 6px 22px rgba(201,162,39,.65), 0 0 0 3px rgba(255,255,255,.95); }
+}
+.map-pin-start .map-start-emoji {
+  position: relative;
+  z-index: 1;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.map-pin-start .map-start-label {
+  position: relative;
+  z-index: 1;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #6b5a1a;
+  margin-top: 2px;
+}
+/* Current badge stop (not start): pulse marker */
+.map-marker-current-wrap.leaflet-marker-icon {
+  background: none !important;
+  border: none !important;
+}
+.map-marker-current {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+}
+.map-marker-pulse-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  border: 3px solid #52b788;
+  border-radius: 50%;
+  animation: map-marker-pulse 1.8s ease-out infinite;
+  pointer-events: none;
+}
+.map-marker-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: #2d6a4f;
+  border: 2px solid #d4a373;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.8);
+}
+@keyframes map-marker-pulse {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
 /* Badges: horizontal scroll strip + numbers */
 .grid.card { margin-bottom: 0; }
 .grid h2 {
@@ -294,6 +382,39 @@ main {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.badge.badge-start {
+  width: 84px;
+  border-width: 3px;
+  border-color: #c9a227;
+  background: linear-gradient(160deg, #fffdf5, #fff3cc);
+  color: #6b5a1a;
+  box-shadow: 0 4px 16px rgba(201,162,39,.25);
+}
+.badge.badge-start .num {
+  color: #8a7220;
+  font-weight: 800;
+}
+.badge.badge-start .start-tag {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #6b5a1a;
+  margin-bottom: 0.15rem;
+}
+#current.current-is-start {
+  border-color: #e8d48a;
+  box-shadow: 0 4px 28px rgba(201,162,39,.18);
+}
+#current .start-only-note {
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  background: rgba(201,162,39,.12);
+  border: 1px dashed rgba(201,162,39,.45);
+  font-size: 0.9rem;
+  color: var(--ink);
 }
 
 .card {
@@ -481,6 +602,21 @@ body.dark #map {
   border-color: rgba(82,183,136,.2);
   box-shadow: 0 4px 20px rgba(0,0,0,.3);
 }
+body.dark .badge.badge-start {
+  background: linear-gradient(160deg, #3d3520, #2d2618);
+  border-color: #c9a227;
+  color: #f0e6b8;
+}
+body.dark .badge.badge-start .start-tag,
+body.dark .badge.badge-start .num { color: #e8d48a; }
+body.dark #current.current-is-start {
+  border-color: rgba(201,162,39,.35);
+}
+body.dark .start-only-note {
+  background: rgba(201,162,39,.1);
+  border-color: rgba(201,162,39,.3);
+  color: #e8edea;
+}
 body.dark .certificate {
   background: linear-gradient(180deg, #2d4a3e 0%, #243d35 100%);
   border-color: var(--accent);
@@ -502,7 +638,7 @@ body.dark .certificate .cert-date { color: var(--muted); }
 <main>
   <section class="intro card">
     <h1>Collect badges as you visit trees!</h1>
-    <p>Walk to each stop, tap <b>Check in</b> to earn a badge, and get the hint for the next stop. Works offline and saves your progress on this device.</p>
+    <p>The <b>tour start</b> is the meeting point only (no badge). Visit the other <b>15 stops</b>, tap <b>Check in</b> to earn a badge, and follow the hints. Works offline and saves your progress on this device.</p>
     <div class="toggles">
       <label class="toggle">
         <input id="demoMode" type="checkbox">
@@ -545,25 +681,27 @@ body.dark .certificate .cert-date { color: var(--muted); }
 const RADIUS_M = 20;
 
 const STOP_DATA = [
-  {"id":"tour-start","name":"Tour start","short":"Tour start","type":"poi","emoji":"📍","lat":43.1581121,"lng":-79.0512522,"desc":"Starting point of the tree tour.","hint":"Head north to Sweetgum."},
+  {"id":"tour-start","name":"Tour start","short":"Tour start","type":"poi","emoji":"📍","collectible":false,"lat":43.1581121,"lng":-79.0512522,"desc":"Starting point of the tree tour — meet here; no badge at this stop.","hint":"Head to Sweetgum for your first badge."},
   {"id":"sweetgum","name":"Sweetgum","short":"Sweetgum","type":"tree","emoji":"⭐","lat":43.1600712,"lng":-79.0519853,"desc":"Sweetgum tree; look for star-shaped leaves and spiky fruits.","hint":"Continue to Red Mulberry."},
-  {"id":"red-mulberry","name":"Red Mulberry","short":"Red Mulberry","type":"tree","emoji":"🍒","lat":43.160167,"lng":-79.0529107,"desc":"Red mulberry; edible berries in summer.","hint":"Walk to Eastern White."},
-  {"id":"eastern-white-1","name":"Eastern White","short":"Eastern White","type":"tree","emoji":"🌲","lat":43.1604736,"lng":-79.0530847,"desc":"Eastern white pine; soft needles in bundles of five.","hint":"Find the Landscape of Northern area."},
-  {"id":"landscape-northern","name":"Landscape of Northern","short":"Landscape N","type":"poi","emoji":"🏕️","lat":43.1594407,"lng":-79.0533487,"desc":"Northern landscape feature.","hint":"Another Eastern White is nearby."},
-  {"id":"eastern-white-2","name":"Eastern White","short":"Eastern White","type":"tree","emoji":"🌲","lat":43.1591875,"lng":-79.0534094,"desc":"Eastern white pine.","hint":"Head to the Tuliptree."},
-  {"id":"tuliptree","name":"Tuliptree","short":"Tuliptree","type":"tree","emoji":"🌷","lat":43.15818,"lng":-79.05433,"desc":"Tuliptree; tulip-shaped flowers in spring.","hint":"Look for Norway Spruce."},
-  {"id":"norway-spruce","name":"Norway Spruce","short":"Norway Spruce","type":"tree","emoji":"🎄","lat":43.1591391,"lng":-79.0563769,"desc":"Norway spruce; classic Christmas tree.","hint":"Continue to Scarlet Oak Grove."},
-  {"id":"scarlet-oak-grove","name":"Scarlet Oak Grove","short":"Scarlet Oak","type":"tree","emoji":"🍂","lat":43.1584564,"lng":-79.0584026,"desc":"Scarlet oak grove; brilliant red fall color.","hint":"Find the Bruce trail marker."},
-  {"id":"bruce-trail-marker","name":"Bruce trail marker","short":"Bruce trail","type":"poi","emoji":"🥾","lat":43.1584714,"lng":-79.0587661,"desc":"Bruce Trail waypoint marker.","hint":"Head to Paper Birch."},
-  {"id":"paper-birch","name":"Paper Birch","short":"Paper Birch","type":"tree","emoji":"🌳","lat":43.1579015,"lng":-79.0581438,"desc":"Paper birch; distinctive white bark.","hint":"Look for Red Maple."},
-  {"id":"red-maple","name":"Red Maple","short":"Red Maple","type":"tree","emoji":"🍁","lat":43.15787,"lng":-79.05572,"desc":"Red maple; vibrant red fall foliage.","hint":"Sugar Maple is close by."},
-  {"id":"sugar-maple","name":"Sugar Maple","short":"Sugar Maple","type":"tree","emoji":"🍯","lat":43.1578081,"lng":-79.0548553,"desc":"Sugar maple; source of maple syrup.","hint":"Find the Japanese ornamental."},
-  {"id":"japanese-ornamental","name":"Japanese ornamental","short":"Japanese orna","type":"tree","emoji":"🌸","lat":43.157721,"lng":-79.0542739,"desc":"Japanese ornamental tree.","hint":"Walk to Sycamore."},
-  {"id":"sycamore","name":"Sycamore","short":"Sycamore","type":"tree","emoji":"🍃","lat":43.1577019,"lng":-79.0515197,"desc":"Sycamore; mottled bark and large leaves.","hint":"Final stop: the Cairn."},
-  {"id":"cairn","name":"Cairn","short":"Cairn","type":"poi","emoji":"⛰️","lat":43.1580303,"lng":-79.0513002,"desc":"Cairn — tour endpoint.","hint":"Tour complete — great job!"}
+  {"id":"red-mulberry","name":"Red Mulberry","short":"Red Mulberry","type":"tree","emoji":"🍒","lat":43.160167,"lng":-79.0529107,"desc":"Red mulberry; edible berries in summer.","hint":"Walk to Eastern White Cedar."},
+  {"id":"eastern-white-cedar","name":"Eastern White Cedar","short":"White Cedar","type":"tree","emoji":"🌲","lat":43.1604736,"lng":-79.0530847,"desc":"Eastern white cedar; scale-like evergreen foliage.","hint":"Find the Landscape of Nations."},
+  {"id":"landscape-nations","name":"Landscape of Nations","short":"Landscape N","type":"poi","emoji":"🏕️","lat":43.1594407,"lng":-79.0533487,"desc":"Landscape of Nations area.","hint":"Next: Eastern White Pine."},
+  {"id":"eastern-white-pine","name":"Eastern White Pine","short":"White Pine","type":"tree","emoji":"🎄","lat":43.1591875,"lng":-79.0534094,"desc":"Eastern white pine; soft needles in bundles of five.","hint":"Head to the Tulip Tree."},
+  {"id":"tulip-tree","name":"Tulip Tree","short":"Tulip Tree","type":"tree","emoji":"🌷","lat":43.15818,"lng":-79.05433,"desc":"Tulip tree; tulip-shaped flowers in spring.","hint":"Look for Norway Spruce."},
+  {"id":"norway-spruce","name":"Norway Spruce","short":"Norway Spruce","type":"tree","emoji":"🏔️","lat":43.1591391,"lng":-79.0563769,"desc":"Norway spruce; classic conical conifer.","hint":"Continue to Scarlet Oak Grove."},
+  {"id":"scarlet-oak-grove","name":"Scarlet Oak Grove","short":"Scarlet Oak","type":"tree","emoji":"🍂","lat":43.1584564,"lng":-79.0584026,"desc":"Scarlet oak grove; brilliant red fall color.","hint":"Find the Bruce Trail Marker."},
+  {"id":"bruce-trail-marker","name":"Bruce Trail Marker","short":"Bruce trail","type":"poi","emoji":"🥾","lat":43.1584714,"lng":-79.0587661,"desc":"Bruce Trail waypoint marker.","hint":"Head to Paper Birch."},
+  {"id":"paper-birch","name":"Paper Birch","short":"Paper Birch","type":"tree","emoji":"🌳","lat":43.1579015,"lng":-79.0581438,"desc":"Paper birch; distinctive white bark.","hint":"Next: Sugar Maple."},
+  {"id":"sugar-maple","name":"Sugar Maple","short":"Sugar Maple","type":"tree","emoji":"🍯","lat":43.1578081,"lng":-79.0548553,"desc":"Sugar maple; source of maple syrup.","hint":"Look for Red Maple."},
+  {"id":"red-maple","name":"Red Maple","short":"Red Maple","type":"tree","emoji":"🍁","lat":43.15787,"lng":-79.05572,"desc":"Red maple; vibrant red fall foliage.","hint":"Find the Kwanzan Cherry Tree."},
+  {"id":"kwanzan-cherry","name":"Kwanzan Cherry Tree","short":"Kwanzan","type":"tree","emoji":"🌸","lat":43.157721,"lng":-79.0542739,"desc":"Kwanzan cherry; double pink blossoms in spring.","hint":"Walk to Sycamore."},
+  {"id":"sycamore","name":"Sycamore","short":"Sycamore","type":"tree","emoji":"🍃","lat":43.1577019,"lng":-79.0515197,"desc":"Sycamore; mottled bark and large leaves.","hint":"Final stop: Bruce Trail Cairn."},
+  {"id":"bruce-trail-cairn","name":"Bruce Trail Cairn / END","short":"Cairn END","type":"poi","emoji":"⛰️","lat":43.1580303,"lng":-79.0513002,"desc":"Bruce Trail cairn — tour endpoint.","hint":"Tour complete — great job!"}
 ];
 
 let stops = STOP_DATA.map((s,i)=>({...s, idx:i}));
+function isCollectible(s) { return s.collectible !== false; }
+const BADGE_TOTAL = stops.filter(isCollectible).length;
 let progress = JSON.parse(localStorage.getItem('tt_progress') || '{}');
 let demoMode = false;
 let currentStopId = null;
@@ -588,8 +726,10 @@ els.reset.addEventListener('click', ()=>{
 });
 
 els.clear.addEventListener('click', ()=>{
-  if(currentStopId && progress[currentStopId]){
-    const stopName = stops.find(s => s.id === currentStopId)?.name;
+  const cur = currentStopId && stops.find(s => s.id === currentStopId);
+  if(!cur || !isCollectible(cur)){ alert('No badge to clear at the tour start.'); return; }
+  if(progress[currentStopId]){
+    const stopName = cur.name;
     if(confirm(`Clear badge for "${stopName}" and return to initial state?`)){
       delete progress[currentStopId];
       localStorage.setItem('tt_progress', JSON.stringify(progress));
@@ -658,37 +798,24 @@ function renderMapMarkers() {
   if (!mapInstance) return;
   
   mapInstance.eachLayer(layer => {
-    if (layer instanceof L.Marker) {
+    if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
       mapInstance.removeLayer(layer);
     }
   });
   
   stops.forEach(stop => {
-    const isUnlocked = !!progress[stop.id];
+    const isUnlocked = isCollectible(stop) && !!progress[stop.id];
     const isCurrent = currentStopId === stop.id;
-    
-    const color = isUnlocked ? '#2d6a4f' : '#9ca3af';
-    const borderColor = isCurrent ? '#d4a373' : '#fff';
-    
-    const marker = L.circleMarker([stop.lat, stop.lng], {
-      radius: 10,
-      fillColor: color,
-      color: borderColor,
-      weight: isCurrent ? 4 : 2,
-      opacity: 1,
-      fillOpacity: 0.8
-    }).addTo(mapInstance);
-    
-    marker.bindPopup(`
+    const popupHtml = `
       <div style="text-align:center;">
         <div style="font-size:1.5em;margin-bottom:4px;">${stop.emoji}</div>
         <b>${stop.name}</b><br>
         <small>#${stop.idx + 1} ${stop.type}</small>
-        ${isUnlocked ? '<br><span style="color:#2d6a4f;">✓ Unlocked</span>' : ''}
+        ${stop.id === 'tour-start' ? '<br><small style="color:#8a7220;">Meeting point — no badge</small>' : ''}
+        ${isUnlocked ? '<br><span style="color:#2d6a4f;">✓ Badge collected</span>' : ''}
       </div>
-    `);
-    
-    marker.on('click', () => {
+    `;
+    const onMarkerClick = () => {
       currentStopId = stop.id;
       renderCurrent();
       const currentEl = document.getElementById('current');
@@ -696,19 +823,60 @@ function renderMapMarkers() {
         try { currentEl.scrollIntoView({ behavior: 'smooth' }); }
         catch(e){ currentEl.scrollIntoView(); }
       }
-    });
+    };
+    
+    if (stop.id === 'tour-start') {
+      const curCls = isCurrent ? ' map-pin-start current' : 'map-pin-start';
+      const icon = L.divIcon({
+        className: 'map-pin-start-wrap',
+        html: `<div class="${curCls}"><span class="map-start-ring"></span><span class="map-start-emoji">${stop.emoji || '📍'}</span><span class="map-start-label">START</span></div>`,
+        iconSize: [52, 52],
+        iconAnchor: [26, 26]
+      });
+      const marker = L.marker([stop.lat, stop.lng], { icon, zIndexOffset: 1000 }).addTo(mapInstance);
+      marker.bindPopup(popupHtml);
+      marker.on('click', onMarkerClick);
+      return;
+    }
+    
+    if (isCurrent) {
+      const icon = L.divIcon({
+        className: 'map-marker-current-wrap',
+        html: '<div class="map-marker-current"><span class="map-marker-pulse-ring"></span><span class="map-marker-dot"></span></div>',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+      });
+      const marker = L.marker([stop.lat, stop.lng], { icon, zIndexOffset: 500 }).addTo(mapInstance);
+      marker.bindPopup(popupHtml);
+      marker.on('click', onMarkerClick);
+      return;
+    }
+    
+    const color = isUnlocked ? '#2d6a4f' : '#9ca3af';
+    const marker = L.circleMarker([stop.lat, stop.lng], {
+      radius: 10,
+      fillColor: color,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.8
+    }).addTo(mapInstance);
+    marker.bindPopup(popupHtml);
+    marker.on('click', onMarkerClick);
   });
 }
 
 function renderAll(){ renderProgress(); renderCurrent(); renderBadges(); renderMapMarkers(); }
 function renderProgress(){
-  const unlocked = Object.keys(progress)
-    .filter(k => progress[k] && k !== 'tour-start').length;
-  const total = stops.filter(s => s.id !== 'tour-start').length;
-  const pct = total ? Math.round(unlocked/total*100) : 0;
+  const unlocked = stops.filter(s => isCollectible(s) && progress[s.id]).length;
+  const total = BADGE_TOTAL;
+  const pct = total ? Math.round(unlocked / total * 100) : 0;
   els.fill.style.width = pct + '%';
   if(els.progressStat) els.progressStat.textContent = `${unlocked}/${total}`;
   els.ptext.textContent = `${unlocked} / ${total} badges collected`;
+}
+function firstIncompleteCollectible() {
+  return stops.find(s => isCollectible(s) && !progress[s.id]);
 }
 function renderCurrent(){
   let targetStop;
@@ -716,41 +884,59 @@ function renderCurrent(){
   if (currentStopId) {
     targetStop = stops.find(s => s.id === currentStopId);
     if (!targetStop) {
-      targetStop = stops.find(s => !progress[s.id]) || stops[stops.length-1];
+      targetStop = firstIncompleteCollectible() || stops.filter(isCollectible).slice(-1)[0];
       currentStopId = targetStop.id;
     }
   } else {
-    targetStop = stops.find(s => !progress[s.id]) || stops[stops.length-1];
+    targetStop = firstIncompleteCollectible() || stops.filter(isCollectible).slice(-1)[0];
     currentStopId = targetStop.id;
   }
   
-  const isUnlocked = !!progress[targetStop.id];
+  const badgeMode = isCollectible(targetStop);
+  const isUnlocked = badgeMode && !!progress[targetStop.id];
   const idx = targetStop.idx + 1;
+  
+  els.current.className = 'current card' + (!badgeMode ? ' current-is-start' : '');
+  
+  if (!badgeMode) {
+    els.current.innerHTML = `
+    <div class="hero">
+      <div class="emblem">${targetStop.emoji || "📍"}</div>
+      <div class="hero-content">
+        <h2>#${idx} ${targetStop.name}</h2>
+        <div class="meta">${targetStop.type} · meeting point</div>
+        <p>${targetStop.desc}</p>
+      </div>
+    </div>
+    <p class="start-only-note">No badge check-in here — begin collecting at the next stops on the trail.</p>
+    <div class="hint"><b>Next:</b> ${targetStop.hint}</div>
+    <div class="actions">
+      <button type="button" class="btn" id="gotoBadgesBtn">Go to first badge stop</button>
+    </div>`;
+    document.getElementById('gotoBadgesBtn').addEventListener('click', () => {
+      const next = firstIncompleteCollectible();
+      if (next) { currentStopId = next.id; renderAll(); }
+    });
+    return;
+  }
   
   els.current.innerHTML = `
     <div class="hero">
       <div class="emblem">${targetStop.emoji || "🌳"}</div>
       <div class="hero-content">
-        <h2>#${idx} ${targetStop.name} ${isUnlocked ? '✓' : ''}</h2>
+        <h2>Badge ${collectibleIndex(targetStop)} / ${BADGE_TOTAL} · ${targetStop.name} ${isUnlocked ? '✓' : ''}</h2>
         <div class="meta">${targetStop.type}</div>
         <p>${targetStop.desc}</p>
       </div>
     </div>
     <div class="actions">
-      <button class="btn" id="checkBtn">${targetStop.id === 'tour-start' ? 'Start Here' : (isUnlocked ? 'Re-check in' : 'Check in')}</button>
+      <button class="btn" id="checkBtn">${isUnlocked ? 'Re-check in' : 'Check in'}</button>
       <button class="btn secondary" id="skipBtn">Skip</button>
     </div>
     <div class="hint"><b>Next hint:</b> ${targetStop.hint}</div>`;
     
   document.getElementById('checkBtn').addEventListener('click', ()=>doCheckIn(targetStop));
   document.getElementById('skipBtn').addEventListener('click', ()=>{
-    if (targetStop.id === 'tour-start') {
-      const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
-      currentStopId = nextStop.id;
-      renderCurrent();
-      return;
-    }
-
     if(confirm('Skip location check for this stop?')){
       progress[targetStop.id] = true;
       localStorage.setItem('tt_progress', JSON.stringify(progress));
@@ -760,39 +946,47 @@ function renderCurrent(){
     }
   });
 }
+function collectibleIndex(stop) {
+  return stops.filter(s => isCollectible(s) && s.idx <= stop.idx).length;
+}
 function renderBadges(){
   els.badgeGrid.innerHTML = '';
-  stops
-    .filter(s => s.id !== 'tour-start')
-    .forEach(s => {
-      const unlocked = !!progress[s.id];
-      const isCurrent = currentStopId === s.id;
-      const d = document.createElement('div');
-      d.className = 'badge ' + (unlocked ? 'unlocked' : '') + (isCurrent ? ' current' : '');
-      d.style.cursor = 'pointer';
-      d.innerHTML = `<span class="num">${s.idx + 1}</span><div>${s.emoji || '🌳'}</div>`;
-      const label = document.createElement('div'); 
-      label.className = 'label'; 
-      label.textContent = s.short || s.name;
-      d.appendChild(label); 
-      
-      d.addEventListener('click', () => {
-        currentStopId = s.id;
-        renderCurrent();
-      });
-      
-      els.badgeGrid.appendChild(d);
+  const start = stops.find(s => s.id === 'tour-start');
+  if (start) {
+    const isSel = currentStopId === start.id;
+    const ds = document.createElement('div');
+    ds.className = 'badge badge-start' + (isSel ? ' current' : '');
+    ds.style.cursor = 'pointer';
+    ds.innerHTML = `<span class="start-tag">START</span><span class="num">—</span><div>${start.emoji || '📍'}</div>`;
+    const ls = document.createElement('div');
+    ls.className = 'label';
+    ls.textContent = start.short || 'Tour start';
+    ds.appendChild(ls);
+    ds.addEventListener('click', () => { currentStopId = start.id; renderAll(); });
+    els.badgeGrid.appendChild(ds);
+  }
+  stops.filter(isCollectible).forEach((s, i) => {
+    const unlocked = !!progress[s.id];
+    const isCurrent = currentStopId === s.id;
+    const d = document.createElement('div');
+    d.className = 'badge ' + (unlocked ? 'unlocked' : '') + (isCurrent ? ' current' : '');
+    d.style.cursor = 'pointer';
+    d.innerHTML = `<span class="num">${i + 1}</span><div>${s.emoji || '🌳'}</div>`;
+    const label = document.createElement('div'); 
+    label.className = 'label'; 
+    label.textContent = s.short || s.name;
+    d.appendChild(label); 
+    
+    d.addEventListener('click', () => {
+      currentStopId = s.id;
+      renderAll();
     });
+    
+    els.badgeGrid.appendChild(d);
+  });
 }
 function doCheckIn(stop){
-  if (stop.id === 'tour-start') {
-    alert('This is the tour start. No badge is needed here.');
-    const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
-    currentStopId = nextStop.id;
-    renderCurrent();
-    return;
-  }
-
+  if (!isCollectible(stop)) return;
   if(demoMode){
     progress[stop.id] = true;
     localStorage.setItem('tt_progress', JSON.stringify(progress));
@@ -818,8 +1012,6 @@ function doCheckIn(stop){
 }
 
 function playBadgeCelebration(){
-  const total = stops.length;
-  const unlocked = Object.keys(progress).filter(k => progress[k]).length;
   const colors = ['#2d6a4f','#40916c','#d4a373','#b08968'];
   const burst = document.createElement('div');
   burst.className = 'celebration-burst';
@@ -839,15 +1031,12 @@ function playBadgeCelebration(){
 }
 
 function checkShowCertificate(){
-  const unlocked = Object.keys(progress)
-    .filter(k => progress[k] && k !== 'tour-start').length;
-  const total = stops.filter(s => s.id !== 'tour-start').length;
-  if(unlocked === total) setTimeout(showCertificate, 1400);
+  const unlocked = stops.filter(s => isCollectible(s) && progress[s.id]).length;
+  if(unlocked === BADGE_TOTAL) setTimeout(showCertificate, 1400);
 }
 
 function showCertificate(){
   if(document.getElementById('certificateOverlay')) return;
-  const total = stops.filter(s => s.id !== 'tour-start').length;
   const dateStr = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   const overlay = document.createElement('div');
   overlay.id = 'certificateOverlay';
@@ -855,8 +1044,8 @@ function showCertificate(){
   overlay.innerHTML = `
     <div class="certificate">
       <h2>Tour Complete!</h2>
-      <p class="cert-sub">You've collected all ${total} badges.</p>
-      <p class="cert-score">${total} / ${total}</p>
+      <p class="cert-sub">You've collected all 15 badges.</p>
+      <p class="cert-score">15 / 15</p>
       <p class="cert-date">${dateStr}</p>
       <button type="button" class="certificate-close">Done</button>
     </div>
