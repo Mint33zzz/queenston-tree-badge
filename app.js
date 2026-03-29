@@ -83,72 +83,15 @@ function renderMapMarkers() {
   if (!mapInstance) return;
   
   mapInstance.eachLayer(layer => {
-    if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+    if (layer instanceof L.CircleMarker) {
       mapInstance.removeLayer(layer);
     }
   });
-
-  const badgeStops = stops.filter(s => s.id !== 'tour-start');
   
   stops.forEach(stop => {
-    const isStart = stop.id === 'tour-start';
     const isUnlocked = !!progress[stop.id];
     const isCurrent = currentStopId === stop.id;
-
-    if (isStart) {
-      const marker = L.marker([stop.lat, stop.lng], {
-        icon: L.divIcon({
-          className: 'start-marker',
-          html: `
-            <div style="
-              width: 30px;
-              height: 30px;
-              border-radius: 50% 50% 50% 0;
-              background: #d64545;
-              color: white;
-              transform: rotate(-45deg);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border: 3px solid #fff;
-              box-shadow: 0 4px 12px rgba(0,0,0,.25);
-              font-size: 16px;
-              font-weight: 700;
-            ">
-              <span style="transform: rotate(45deg);">📍</span>
-            </div>
-          `,
-          iconSize: [30, 30],
-          iconAnchor: [15, 30],
-          popupAnchor: [0, -30]
-        })
-      }).addTo(mapInstance);
-
-      marker.bindPopup(`
-        <div style="text-align:center;">
-          <div style="font-size:1.5em;margin-bottom:4px;">📍</div>
-          <b>Start Here</b><br>
-          <small>Tour starting point</small>
-        </div>
-      `);
-
-      marker.on('click', () => {
-        currentStopId = stop.id;
-        renderCurrent();
-        const currentEl = document.getElementById('current');
-        if (currentEl && typeof currentEl.scrollIntoView === 'function') {
-          try {
-            currentEl.scrollIntoView({ behavior: 'smooth' });
-          } catch (e) {
-            currentEl.scrollIntoView();
-          }
-        }
-      });
-
-      return;
-    }
     
-    const badgeNumber = badgeStops.findIndex(s => s.id === stop.id) + 1;
     const color = isUnlocked ? '#43b27b' : '#9ca3af';
     const borderColor = isCurrent ? '#ffdf5a' : '#fff';
     
@@ -165,7 +108,7 @@ function renderMapMarkers() {
       <div style="text-align:center;">
         <div style="font-size:1.5em;margin-bottom:4px;">${stop.emoji}</div>
         <b>${stop.name}</b><br>
-        <small>#${badgeNumber} ${stop.type}</small>
+        <small>#${stop.idx + 1} ${stop.type}</small>
         ${isUnlocked ? '<br><span style="color:#43b27b;">✓ Unlocked</span>' : ''}
       </div>
     `);
@@ -216,16 +159,14 @@ function renderCurrent() {
   }
   
   const isUnlocked = !!progress[targetStop.id];
-  const isStart = targetStop.id === 'tour-start';
-  const badgeStops = stops.filter(s => s.id !== 'tour-start');
-  const badgeNumber = badgeStops.findIndex(s => s.id === targetStop.id) + 1;
+  const idx = targetStop.idx + 1;
   
   els.current.innerHTML = `
     <div class="hero">
-      <div class="emblem">${isStart ? '📍' : (targetStop.emoji || "🌳")}</div>
+      <div class="emblem">${targetStop.emoji || "🌳"}</div>
       <div>
-        <h2>${isStart ? 'Start Here — Tour start' : `#${badgeNumber} ${targetStop.name} ${isUnlocked ? '✓' : ''}`}</h2>
-        <div class="meta">${isStart ? 'Starting point' : targetStop.type}</div>
+        <h2>#${idx} ${targetStop.name} ${isUnlocked ? '✓' : ''}</h2>
+        <div class="meta">${targetStop.type}</div>
         <p>${targetStop.desc}</p>
       </div>
     </div>
@@ -233,7 +174,7 @@ function renderCurrent() {
       <button class="btn" id="checkBtn">${targetStop.id === 'tour-start' ? 'Start Here' : (isUnlocked ? 'Re-check in' : 'Check in')}</button>
       <button class="btn secondary" id="skipBtn">Skip</button>
     </div>
-    <div class="hint"><b>${isStart ? 'Start here:' : 'Next hint:'}</b> ${targetStop.hint}</div>
+    <div class="hint"><b>Next hint:</b> ${targetStop.hint}</div>
   `;
   
   document.getElementById('checkBtn').addEventListener('click', () => doCheckIn(targetStop));
@@ -255,13 +196,13 @@ function renderCurrent() {
 
 function renderBadges() {
   els.badgeGrid.innerHTML = '';
-  stops.filter(s => s.id !== 'tour-start').forEach((s, badgeIndex) => {
+  stops.filter(s => s.id !== 'tour-start').forEach(s => {
     const unlocked = !!progress[s.id];
     const isCurrent = currentStopId === s.id;
     const d = document.createElement('div');
     d.className = 'badge ' + (unlocked ? 'unlocked' : '') + (isCurrent ? ' current' : '');
     d.style.cursor = 'pointer';
-    d.innerHTML = `<span class="num">${badgeIndex + 1}</span><div>${s.emoji || '🌳'}</div>`;
+    d.innerHTML = `<div>${s.emoji || '🌳'}</div>`;
     const label = document.createElement('div');
     label.className = 'label';
     label.textContent = s.short || s.name;
