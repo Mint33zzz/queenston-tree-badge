@@ -1,70 +1,672 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Tree Tour — Badge Hunt</title>
+  <meta name="theme-color" content="#2d4a3e"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Source+Serif+4:ital,wght@0,400;0,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+:root{
+  --ink: #1a2e26;
+  --muted: #5c7269;
+  --bg: #f0f5f2;
+  --card: #ffffff;
+  --accent: #2d6a4f;
+  --accent-light: #40916c;
+  --warm: #b08968;
+  --highlight: #d4a373;
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: 'Source Serif 4', Georgia, serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+/* Header: compact, dark */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: #e8edea;
+}
+.appbar .title {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+.appbar-actions { display: flex; gap: 0.4rem; }
+.appbar .link {
+  background: rgba(255,255,255,.12);
+  color: #e8edea;
+  border: none;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
+}
+.appbar .link:hover { background: rgba(255,255,255,.2); }
+
+main {
+  padding: 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
+/* Intro: collapsible feel, smaller */
+.intro {
+  background: linear-gradient(135deg, rgba(45,106,79,.06), rgba(180,137,104,.06));
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(45,106,79,.15);
+}
+.intro h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  color: var(--ink);
+}
+.intro p { margin: 0; font-size: 0.95rem; color: var(--muted); }
+.toggles { margin-top: 0.8rem; }
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.toggle input { transform: scale(1.15); accent-color: var(--accent); }
+.intro small { display: block; margin-top: 0.4rem; font-size: 0.8rem; color: var(--muted); }
+
+/* Progress: pill + number focus */
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.progress-stat {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--accent);
+  min-width: 3.5ch;
+}
+.progress .bar {
+  flex: 1;
+  min-width: 120px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(45,106,79,.15);
+  overflow: hidden;
+}
+.progress .fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-light), var(--accent));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+.progress-text { font-size: 0.85rem; color: var(--muted); }
+
+/* Current stop: hero block first */
+#current {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 24px rgba(26,46,38,.08);
+  border: 1px solid rgba(45,106,79,.12);
+}
+.current .hero {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.current .hero .emblem {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(145deg, #e8f0ec, #dce6e1);
+  display: grid;
+  place-items: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+  border: 2px solid rgba(45,106,79,.2);
+}
+.current .hero-content { flex: 1; min-width: 0; }
+.current .hero h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+  color: var(--ink);
+}
+.current .meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+.current .hero p { margin: 0; font-size: 0.95rem; }
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: 'Outfit', sans-serif;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(45,106,79,.35); }
+.btn.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+}
+.btn.secondary:hover { background: rgba(45,106,79,.08); }
+.hint {
+  margin-top: 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-sm);
+  background: rgba(212,163,115,.2);
+  border-left: 4px solid var(--highlight);
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.hint b { color: var(--accent); }
+
+/* Map section */
+.map-section {
+  margin-bottom: 1rem;
+}
+.map-section h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+}
+#map {
+  height: 280px;
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+  z-index: 1;
+  border: 1px solid rgba(45,106,79,.12);
+  box-shadow: 0 4px 20px rgba(26,46,38,.06);
+}
+
+/* Badges: horizontal scroll strip + numbers */
+.grid.card { margin-bottom: 0; }
+.grid h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+}
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.badge {
+  flex: 0 0 auto;
+  width: 72px;
+  scroll-snap-align: start;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(45,106,79,.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f7faf8;
+  color: #9cb5ab;
+  font-size: 1.5rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.badge .num {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+.badge.unlocked {
+  border-color: var(--accent-light);
+  background: rgba(45,106,79,.08);
+  color: var(--accent);
+  position: relative;
+}
+.badge.unlocked::after {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.badge.current {
+  border-color: var(--accent);
+  border-width: 3px;
+  transform: scale(1.06);
+  box-shadow: 0 0 0 2px rgba(45,106,79,.2);
+}
+.badge:hover { transform: scale(1.03); }
+.badge .label {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 0 2px;
+  margin-top: 0.2rem;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(45,106,79,.1);
+  box-shadow: 0 2px 16px rgba(26,46,38,.04);
+}
+
+footer {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+@media (min-width: 640px) {
+  .badges {
+    flex-wrap: wrap;
+    overflow: visible;
+    justify-content: flex-start;
+    gap: 0.6rem;
+  }
+  .badge { width: 76px; }
+}
+
+/* Celebration: single badge unlock */
+.celebration-burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.celebration-particle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: celebration-fall 1.8s ease-out forwards;
+  opacity: 0.9;
+}
+.celebration-particle.leaf {
+  width: 14px;
+  height: 10px;
+  border-radius: 50% 0 50% 50%;
+  transform: rotate(var(--r, 0deg));
+}
+@keyframes celebration-fall {
+  0% {
+    transform: translateY(-20px) rotate(0deg) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* Certificate: full tour complete */
+.certificate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(26, 46, 38, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: cert-fadeIn 0.4s ease;
+}
+@keyframes cert-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.certificate {
+  background: linear-gradient(180deg, #fdfcf9 0%, #f5f2eb 100%);
+  border: 3px solid var(--accent);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  position: relative;
+  animation: cert-scaleIn 0.5s ease;
+}
+@keyframes cert-scaleIn {
+  from { transform: scale(0.85); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.certificate::before {
+  content: '🌿';
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+}
+.certificate h2 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 1.5rem 0 0.25rem;
+}
+.certificate .cert-sub {
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.certificate .cert-score {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0.5rem 0;
+}
+.certificate .cert-date {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+.certificate-close {
+  margin-top: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.certificate-close:hover { opacity: 0.9; }
+
+/* Dark mode */
+body.dark {
+  --ink: #e8edea;
+  --muted: #9cb5ab;
+  --bg: #1a2e26;
+  --card: #243d35;
+  --accent: #52b788;
+  --accent-light: #40916c;
+  --warm: #c4a574;
+  --highlight: #d4a373;
+}
+body.dark .appbar {
+  background: #0f1f1a;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+body.dark .intro {
+  background: linear-gradient(135deg, rgba(82,183,136,.08), rgba(180,137,104,.08));
+  border-color: rgba(82,183,136,.25);
+}
+body.dark .progress .bar {
+  background: rgba(82,183,136,.2);
+}
+body.dark #current {
+  box-shadow: 0 4px 24px rgba(0,0,0,.2);
+  border-color: rgba(82,183,136,.2);
+}
+body.dark .current .hero .emblem {
+  background: linear-gradient(145deg, #2d4a3e, #243d35);
+  border-color: rgba(82,183,136,.3);
+}
+body.dark .hint {
+  background: rgba(212,163,115,.15);
+  border-left-color: var(--highlight);
+}
+body.dark .badge {
+  background: #2d4a3e;
+  color: #5c7269;
+  border-color: rgba(82,183,136,.25);
+}
+body.dark .badge.unlocked {
+  background: rgba(82,183,136,.15);
+  color: var(--accent-light);
+  border-color: var(--accent);
+}
+body.dark #map {
+  border-color: rgba(82,183,136,.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+body.dark .certificate {
+  background: linear-gradient(180deg, #2d4a3e 0%, #243d35 100%);
+  border-color: var(--accent);
+}
+body.dark .certificate h2,
+body.dark .certificate .cert-sub { color: #e8edea; }
+body.dark .certificate .cert-date { color: var(--muted); }
+  </style>
+</head>
+<body>
+<header class="appbar">
+  <div class="title">🌿 Tree Tour — Badge Hunt</div>
+  <div class="appbar-actions">
+    <button id="clearBtn" class="link">Clear Current</button>
+    <button id="resetBtn" class="link">Reset All</button>
+  </div>
+</header>
+
+<main>
+  <section class="intro card">
+    <h1>Collect badges as you visit trees!</h1>
+    <p>Walk to each stop, tap <b>Check in</b> to earn a badge, and get the hint for the next stop. Works offline and saves your progress on this device.</p>
+    <div class="toggles">
+      <label class="toggle">
+        <input id="demoMode" type="checkbox">
+        <span>Demo mode (no GPS)</span>
+      </label>
+      <label class="toggle">
+        <input id="darkMode" type="checkbox">
+        <span>Dark mode</span>
+      </label>
+      <small>Tip: For class demo or inside buildings, enable demo mode; you'll be able to check-in without location. Use dark mode at night or in bright outdoor light.</small>
+    </div>
+  </section>
+
+  <section class="progress card" aria-label="Progress">
+    <div class="progress-wrap">
+      <div id="progressStat" class="progress-stat">0/15</div>
+      <div class="progress" style="flex:1;">
+        <div id="progressBar" class="bar"><div id="progressFill" class="fill"></div></div>
+      </div>
+    </div>
+    <div id="progressText" class="progress-text">0 / 15 badges collected</div>
+  </section>
+
+  <section id="current" class="current card" aria-live="polite"></section>
+
+  <section class="map-section card">
+    <h2>Tour map</h2>
+    <div id="map"></div>
+  </section>
+
+  <section class="grid card">
+    <h2>Your Badges</h2>
+    <div id="badgeGrid" class="badges"></div>
+  </section>
+</main>
+
+<footer><small>Edit the STOP_DATA below to customize.</small></footer>
+
+<script>
+const RADIUS_M = 20;
+
+const STOP_DATA = [
+  {"id":"tour-start","name":"Tour start","short":"Tour start","type":"poi","emoji":"📍","lat":43.1581121,"lng":-79.0512522,"desc":"Starting point of the tree tour.","hint":"Head north to Sweetgum."},
+  {"id":"sweetgum","name":"Sweetgum","short":"Sweetgum","type":"tree","emoji":"⭐","lat":43.1600712,"lng":-79.0519853,"desc":"Sweetgum tree; look for star-shaped leaves and spiky fruits.","hint":"Continue to Red Mulberry."},
+  {"id":"red-mulberry","name":"Red Mulberry","short":"Red Mulberry","type":"tree","emoji":"🍒","lat":43.160167,"lng":-79.0529107,"desc":"Red mulberry; edible berries in summer.","hint":"Walk to Eastern White."},
+  {"id":"eastern-white-1","name":"Eastern White","short":"Eastern White","type":"tree","emoji":"🌲","lat":43.1604736,"lng":-79.0530847,"desc":"Eastern white pine; soft needles in bundles of five.","hint":"Find the Landscape of Northern area."},
+  {"id":"landscape-northern","name":"Landscape of Northern","short":"Landscape N","type":"poi","emoji":"🏕️","lat":43.1594407,"lng":-79.0533487,"desc":"Northern landscape feature.","hint":"Another Eastern White is nearby."},
+  {"id":"eastern-white-2","name":"Eastern White","short":"Eastern White","type":"tree","emoji":"🌲","lat":43.1591875,"lng":-79.0534094,"desc":"Eastern white pine.","hint":"Head to the Tuliptree."},
+  {"id":"tuliptree","name":"Tuliptree","short":"Tuliptree","type":"tree","emoji":"🌷","lat":43.15818,"lng":-79.05433,"desc":"Tuliptree; tulip-shaped flowers in spring.","hint":"Look for Norway Spruce."},
+  {"id":"norway-spruce","name":"Norway Spruce","short":"Norway Spruce","type":"tree","emoji":"🎄","lat":43.1591391,"lng":-79.0563769,"desc":"Norway spruce; classic Christmas tree.","hint":"Continue to Scarlet Oak Grove."},
+  {"id":"scarlet-oak-grove","name":"Scarlet Oak Grove","short":"Scarlet Oak","type":"tree","emoji":"🍂","lat":43.1584564,"lng":-79.0584026,"desc":"Scarlet oak grove; brilliant red fall color.","hint":"Find the Bruce trail marker."},
+  {"id":"bruce-trail-marker","name":"Bruce trail marker","short":"Bruce trail","type":"poi","emoji":"🥾","lat":43.1584714,"lng":-79.0587661,"desc":"Bruce Trail waypoint marker.","hint":"Head to Paper Birch."},
+  {"id":"paper-birch","name":"Paper Birch","short":"Paper Birch","type":"tree","emoji":"🌳","lat":43.1579015,"lng":-79.0581438,"desc":"Paper birch; distinctive white bark.","hint":"Look for Red Maple."},
+  {"id":"red-maple","name":"Red Maple","short":"Red Maple","type":"tree","emoji":"🍁","lat":43.15787,"lng":-79.05572,"desc":"Red maple; vibrant red fall foliage.","hint":"Sugar Maple is close by."},
+  {"id":"sugar-maple","name":"Sugar Maple","short":"Sugar Maple","type":"tree","emoji":"🍯","lat":43.1578081,"lng":-79.0548553,"desc":"Sugar maple; source of maple syrup.","hint":"Find the Japanese ornamental."},
+  {"id":"japanese-ornamental","name":"Japanese ornamental","short":"Japanese orna","type":"tree","emoji":"🌸","lat":43.157721,"lng":-79.0542739,"desc":"Japanese ornamental tree.","hint":"Walk to Sycamore."},
+  {"id":"sycamore","name":"Sycamore","short":"Sycamore","type":"tree","emoji":"🍃","lat":43.1577019,"lng":-79.0515197,"desc":"Sycamore; mottled bark and large leaves.","hint":"Final stop: the Cairn."},
+  {"id":"cairn","name":"Cairn","short":"Cairn","type":"poi","emoji":"⛰️","lat":43.1580303,"lng":-79.0513002,"desc":"Cairn — tour endpoint.","hint":"Tour complete — great job!"}
+];
+
+let stops = STOP_DATA.map((s,i)=>({...s, idx:i}));
+let progress = JSON.parse(localStorage.getItem('tt_progress') || '{}');
+let demoMode = false;
+let currentStopId = null;
+
+const els = {
+  current: document.getElementById('current'),
+  badgeGrid: document.getElementById('badgeGrid'),
+  progressStat: document.getElementById('progressStat'),
+  fill: document.getElementById('progressFill'),
+  ptext: document.getElementById('progressText'),
+  reset: document.getElementById('resetBtn'),
+  clear: document.getElementById('clearBtn'),
+  demo: document.getElementById('demoMode'),
+  dark: document.getElementById('darkMode'),
+  map: document.getElementById('map'),
+};
+
+els.reset.addEventListener('click', ()=>{
+  if(confirm('Clear your progress on this device?')){
+    localStorage.removeItem('tt_progress'); progress = {}; currentStopId = null; renderAll();
+  }
+});
+
+els.clear.addEventListener('click', ()=>{
+  if(currentStopId && progress[currentStopId]){
+    const stopName = stops.find(s => s.id === currentStopId)?.name;
+    if(confirm(`Clear badge for "${stopName}" and return to initial state?`)){
+      delete progress[currentStopId];
+      localStorage.setItem('tt_progress', JSON.stringify(progress));
+      currentStopId = null;
+      renderAll();
+    }
+  } else {
+    alert('No unlocked badge to clear for current stop.');
+  }
+});
+
+els.demo.addEventListener('change', (e)=>{ demoMode = e.target.checked; });
+
+function applyDarkMode(isDark) {
+  document.body.classList.toggle('dark', !!isDark);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.content = isDark ? '#1a2e26' : '#2d4a3e';
+}
+if (els.dark) {
+  const savedDark = localStorage.getItem('tt_dark') === '1';
+  els.dark.checked = savedDark;
+  applyDarkMode(savedDark);
+  els.dark.addEventListener('change', (e) => {
+    const on = e.target.checked;
+    localStorage.setItem('tt_dark', on ? '1' : '0');
+    applyDarkMode(on);
+  });
+}
+
+let mapInstance = null;
+
+function initMap() {
+  if (stops.length === 0) return;
+  
+  const bounds = stops.reduce((acc, stop) => {
+    if (!acc.minLat || stop.lat < acc.minLat) acc.minLat = stop.lat;
+    if (!acc.maxLat || stop.lat > acc.maxLat) acc.maxLat = stop.lat;
+    if (!acc.minLng || stop.lng < acc.minLng) acc.minLng = stop.lng;
+    if (!acc.maxLng || stop.lng > acc.maxLng) acc.maxLng = stop.lng;
+    return acc;
+  }, { minLat: null, maxLat: null, minLng: null, maxLng: null });
+  
+  const centerLat = (bounds.minLat + bounds.maxLat) / 2;
+  const centerLng = (bounds.minLng + bounds.maxLng) / 2;
+  
+  mapInstance = L.map('map').setView([centerLat, centerLng], 16);
+  
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(mapInstance);
+  
+  const routeLatLngs = stops.map(s => [s.lat, s.lng]);
+  L.polyline(routeLatLngs, {
+    color: '#2d6a4f',
+    weight: 4,
+    opacity: 0.75,
+    dashArray: '10, 10',
+    lineCap: 'round',
+    lineJoin: 'round'
+  }).addTo(mapInstance);
+  
+  renderMapMarkers();
+}
+
 function renderMapMarkers() {
   if (!mapInstance) return;
   
   mapInstance.eachLayer(layer => {
-    if (layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+    if (layer instanceof L.Marker) {
       mapInstance.removeLayer(layer);
     }
   });
   
-  const badgeStops = stops.filter(s => s.id !== 'tour-start');
-  
   stops.forEach(stop => {
-    const isStart = stop.id === 'tour-start';
     const isUnlocked = !!progress[stop.id];
     const isCurrent = currentStopId === stop.id;
-
-    if (isStart) {
-      const marker = L.marker([stop.lat, stop.lng], {
-        icon: L.divIcon({
-          className: 'start-marker',
-          html: `
-            <div style="
-              width: 30px;
-              height: 30px;
-              border-radius: 50% 50% 50% 0;
-              background: #d64545;
-              color: white;
-              transform: rotate(-45deg);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border: 3px solid #fff;
-              box-shadow: 0 4px 12px rgba(0,0,0,.25);
-              font-size: 16px;
-              font-weight: 700;
-            ">
-              <span style="transform: rotate(45deg);">📍</span>
-            </div>
-          `,
-          iconSize: [30, 30],
-          iconAnchor: [15, 30],
-          popupAnchor: [0, -30]
-        })
-      }).addTo(mapInstance);
-
-      marker.bindPopup(`
-        <div style="text-align:center;">
-          <div style="font-size:1.5em;margin-bottom:4px;">📍</div>
-          <b>Start Here</b><br>
-          <small>Tour starting point</small>
-        </div>
-      `);
-
-      marker.on('click', () => {
-        currentStopId = stop.id;
-        renderCurrent();
-        const currentEl = document.getElementById('current');
-        if(currentEl && typeof currentEl.scrollIntoView === 'function'){
-          try { currentEl.scrollIntoView({ behavior: 'smooth' }); }
-          catch(e){ currentEl.scrollIntoView(); }
-        }
-      });
-
-      return;
-    }
     
-    const badgeNumber = badgeStops.findIndex(s => s.id === stop.id) + 1;
     const color = isUnlocked ? '#2d6a4f' : '#9ca3af';
     const borderColor = isCurrent ? '#d4a373' : '#fff';
     
@@ -81,7 +683,7 @@ function renderMapMarkers() {
       <div style="text-align:center;">
         <div style="font-size:1.5em;margin-bottom:4px;">${stop.emoji}</div>
         <b>${stop.name}</b><br>
-        <small>#${badgeNumber} ${stop.type}</small>
+        <small>#${stop.idx + 1} ${stop.type}</small>
         ${isUnlocked ? '<br><span style="color:#2d6a4f;">✓ Unlocked</span>' : ''}
       </div>
     `);
@@ -98,6 +700,16 @@ function renderMapMarkers() {
   });
 }
 
+function renderAll(){ renderProgress(); renderCurrent(); renderBadges(); renderMapMarkers(); }
+function renderProgress(){
+  const unlocked = Object.keys(progress)
+    .filter(k => progress[k] && k !== 'tour-start').length;
+  const total = stops.filter(s => s.id !== 'tour-start').length;
+  const pct = total ? Math.round(unlocked/total*100) : 0;
+  els.fill.style.width = pct + '%';
+  if(els.progressStat) els.progressStat.textContent = `${unlocked}/${total}`;
+  els.ptext.textContent = `${unlocked} / ${total} badges collected`;
+}
 function renderCurrent(){
   let targetStop;
   
@@ -113,24 +725,22 @@ function renderCurrent(){
   }
   
   const isUnlocked = !!progress[targetStop.id];
-  const isStart = targetStop.id === 'tour-start';
-  const badgeStops = stops.filter(s => s.id !== 'tour-start');
-  const badgeNumber = badgeStops.findIndex(s => s.id === targetStop.id) + 1;
+  const idx = targetStop.idx + 1;
   
   els.current.innerHTML = `
     <div class="hero">
-      <div class="emblem">${isStart ? '📍' : (targetStop.emoji || "🌳")}</div>
+      <div class="emblem">${targetStop.emoji || "🌳"}</div>
       <div class="hero-content">
-        <h2>${isStart ? 'Start Here — Tour start' : `#${badgeNumber} ${targetStop.name} ${isUnlocked ? '✓' : ''}`}</h2>
-        <div class="meta">${isStart ? 'Starting point' : targetStop.type}</div>
+        <h2>#${idx} ${targetStop.name} ${isUnlocked ? '✓' : ''}</h2>
+        <div class="meta">${targetStop.type}</div>
         <p>${targetStop.desc}</p>
       </div>
     </div>
     <div class="actions">
-      <button class="btn" id="checkBtn">${isStart ? 'Start Here' : (isUnlocked ? 'Re-check in' : 'Check in')}</button>
+      <button class="btn" id="checkBtn">${targetStop.id === 'tour-start' ? 'Start Here' : (isUnlocked ? 'Re-check in' : 'Check in')}</button>
       <button class="btn secondary" id="skipBtn">Skip</button>
     </div>
-    <div class="hint"><b>${isStart ? 'Start here:' : 'Next hint:'}</b> ${targetStop.hint}</div>`;
+    <div class="hint"><b>Next hint:</b> ${targetStop.hint}</div>`;
     
   document.getElementById('checkBtn').addEventListener('click', ()=>doCheckIn(targetStop));
   document.getElementById('skipBtn').addEventListener('click', ()=>{
@@ -150,18 +760,17 @@ function renderCurrent(){
     }
   });
 }
-
 function renderBadges(){
   els.badgeGrid.innerHTML = '';
   stops
     .filter(s => s.id !== 'tour-start')
-    .forEach((s, badgeIndex) => {
+    .forEach(s => {
       const unlocked = !!progress[s.id];
       const isCurrent = currentStopId === s.id;
       const d = document.createElement('div');
       d.className = 'badge ' + (unlocked ? 'unlocked' : '') + (isCurrent ? ' current' : '');
       d.style.cursor = 'pointer';
-      d.innerHTML = `<span class="num">${badgeIndex + 1}</span><div>${s.emoji || '🌳'}</div>`;
+      d.innerHTML = `<span class="num">${s.idx + 1}</span><div>${s.emoji || '🌳'}</div>`;
       const label = document.createElement('div'); 
       label.className = 'label'; 
       label.textContent = s.short || s.name;
@@ -175,3 +784,95 @@ function renderBadges(){
       els.badgeGrid.appendChild(d);
     });
 }
+function doCheckIn(stop){
+  if (stop.id === 'tour-start') {
+    alert('This is the tour start. No badge is needed here.');
+    const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
+    currentStopId = nextStop.id;
+    renderCurrent();
+    return;
+  }
+
+  if(demoMode){
+    progress[stop.id] = true;
+    localStorage.setItem('tt_progress', JSON.stringify(progress));
+    playBadgeCelebration();
+    renderAll();
+    checkShowCertificate();
+    return;
+  }
+  if(!('geolocation' in navigator)){ alert('Geolocation not supported. Enable demo mode to proceed.'); return; }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const d = distanceInMeters(pos.coords.latitude, pos.coords.longitude, stop.lat, stop.lng);
+    if(d <= RADIUS_M){
+      progress[stop.id] = true;
+      localStorage.setItem('tt_progress', JSON.stringify(progress));
+      playBadgeCelebration();
+      renderAll();
+      checkShowCertificate();
+    }else{
+      alert(`You are ${Math.round(d)}m away. Move closer (≤ ${RADIUS_M}m) or enable demo mode.`);
+    }
+  }, err => { alert('Location error: ' + err.message + '\nTip: allow location permission, or use demo mode.'); },
+  { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 });
+}
+
+function playBadgeCelebration(){
+  const total = stops.length;
+  const unlocked = Object.keys(progress).filter(k => progress[k]).length;
+  const colors = ['#2d6a4f','#40916c','#d4a373','#b08968'];
+  const burst = document.createElement('div');
+  burst.className = 'celebration-burst';
+  const particleCount = 28;
+  for(let i = 0; i < particleCount; i++){
+    const p = document.createElement('div');
+    p.className = 'celebration-particle' + (i % 4 === 0 ? ' leaf' : '');
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = (20 + Math.random() * 30) + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = (Math.random() * 0.4) + 's';
+    p.style.setProperty('--r', (Math.random() * 360) + 'deg');
+    burst.appendChild(p);
+  }
+  document.body.appendChild(burst);
+  setTimeout(() => burst.remove(), 2200);
+}
+
+function checkShowCertificate(){
+  const unlocked = Object.keys(progress)
+    .filter(k => progress[k] && k !== 'tour-start').length;
+  const total = stops.filter(s => s.id !== 'tour-start').length;
+  if(unlocked === total) setTimeout(showCertificate, 1400);
+}
+
+function showCertificate(){
+  if(document.getElementById('certificateOverlay')) return;
+  const total = stops.filter(s => s.id !== 'tour-start').length;
+  const dateStr = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
+  const overlay = document.createElement('div');
+  overlay.id = 'certificateOverlay';
+  overlay.className = 'certificate-overlay';
+  overlay.innerHTML = `
+    <div class="certificate">
+      <h2>Tour Complete!</h2>
+      <p class="cert-sub">You've collected all ${total} badges.</p>
+      <p class="cert-score">${total} / ${total}</p>
+      <p class="cert-date">${dateStr}</p>
+      <button type="button" class="certificate-close">Done</button>
+    </div>
+  `;
+  overlay.querySelector('.certificate-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+function distanceInMeters(lat1, lon1, lat2, lon2){
+  const toRad = x => x * Math.PI / 180, R = 6371000;
+  const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); return R * c;
+}
+initMap();
+renderAll();
+</script>
+</body>
+</html>
