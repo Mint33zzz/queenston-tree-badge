@@ -518,12 +518,12 @@ body.dark .certificate .cert-date { color: var(--muted); }
 
   <section class="progress card" aria-label="Progress">
     <div class="progress-wrap">
-      <div id="progressStat" class="progress-stat">0/16</div>
+      <div id="progressStat" class="progress-stat">0/15</div>
       <div class="progress" style="flex:1;">
         <div id="progressBar" class="bar"><div id="progressFill" class="fill"></div></div>
       </div>
     </div>
-    <div id="progressText" class="progress-text">0 / 16 badges collected</div>
+    <div id="progressText" class="progress-text">0 / 15 badges collected</div>
   </section>
 
   <section id="current" class="current card" aria-live="polite"></section>
@@ -702,8 +702,10 @@ function renderMapMarkers() {
 
 function renderAll(){ renderProgress(); renderCurrent(); renderBadges(); renderMapMarkers(); }
 function renderProgress(){
-  const unlocked = Object.keys(progress).filter(k => progress[k]).length;
-  const total = stops.length; const pct = total ? Math.round(unlocked/total*100) : 0;
+  const unlocked = Object.keys(progress)
+    .filter(k => progress[k] && k !== 'tour-start').length;
+  const total = stops.filter(s => s.id !== 'tour-start').length;
+  const pct = total ? Math.round(unlocked/total*100) : 0;
   els.fill.style.width = pct + '%';
   if(els.progressStat) els.progressStat.textContent = `${unlocked}/${total}`;
   els.ptext.textContent = `${unlocked} / ${total} badges collected`;
@@ -735,13 +737,20 @@ function renderCurrent(){
       </div>
     </div>
     <div class="actions">
-      <button class="btn" id="checkBtn">${isUnlocked ? 'Re-check in' : 'Check in'}</button>
+      <button class="btn" id="checkBtn">${targetStop.id === 'tour-start' ? 'Start Here' : (isUnlocked ? 'Re-check in' : 'Check in')}</button>
       <button class="btn secondary" id="skipBtn">Skip</button>
     </div>
     <div class="hint"><b>Next hint:</b> ${targetStop.hint}</div>`;
     
   document.getElementById('checkBtn').addEventListener('click', ()=>doCheckIn(targetStop));
   document.getElementById('skipBtn').addEventListener('click', ()=>{
+    if (targetStop.id === 'tour-start') {
+      const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
+      currentStopId = nextStop.id;
+      renderCurrent();
+      return;
+    }
+
     if(confirm('Skip location check for this stop?')){
       progress[targetStop.id] = true;
       localStorage.setItem('tt_progress', JSON.stringify(progress));
@@ -753,27 +762,37 @@ function renderCurrent(){
 }
 function renderBadges(){
   els.badgeGrid.innerHTML = '';
-  stops.forEach(s => {
-    const unlocked = !!progress[s.id];
-    const isCurrent = currentStopId === s.id;
-    const d = document.createElement('div');
-    d.className = 'badge ' + (unlocked ? 'unlocked' : '') + (isCurrent ? ' current' : '');
-    d.style.cursor = 'pointer';
-    d.innerHTML = `<span class="num">${s.idx + 1}</span><div>${s.emoji || '🌳'}</div>`;
-    const label = document.createElement('div'); 
-    label.className = 'label'; 
-    label.textContent = s.short || s.name;
-    d.appendChild(label); 
-    
-    d.addEventListener('click', () => {
-      currentStopId = s.id;
-      renderCurrent();
+  stops
+    .filter(s => s.id !== 'tour-start')
+    .forEach(s => {
+      const unlocked = !!progress[s.id];
+      const isCurrent = currentStopId === s.id;
+      const d = document.createElement('div');
+      d.className = 'badge ' + (unlocked ? 'unlocked' : '') + (isCurrent ? ' current' : '');
+      d.style.cursor = 'pointer';
+      d.innerHTML = `<span class="num">${s.idx + 1}</span><div>${s.emoji || '🌳'}</div>`;
+      const label = document.createElement('div'); 
+      label.className = 'label'; 
+      label.textContent = s.short || s.name;
+      d.appendChild(label); 
+      
+      d.addEventListener('click', () => {
+        currentStopId = s.id;
+        renderCurrent();
+      });
+      
+      els.badgeGrid.appendChild(d);
     });
-    
-    els.badgeGrid.appendChild(d);
-  });
 }
 function doCheckIn(stop){
+  if (stop.id === 'tour-start') {
+    alert('This is the tour start. No badge is needed here.');
+    const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
+    currentStopId = nextStop.id;
+    renderCurrent();
+    return;
+  }
+
   if(demoMode){
     progress[stop.id] = true;
     localStorage.setItem('tt_progress', JSON.stringify(progress));
@@ -820,12 +839,15 @@ function playBadgeCelebration(){
 }
 
 function checkShowCertificate(){
-  const unlocked = Object.keys(progress).filter(k => progress[k]).length;
-  if(unlocked === stops.length) setTimeout(showCertificate, 1400);
+  const unlocked = Object.keys(progress)
+    .filter(k => progress[k] && k !== 'tour-start').length;
+  const total = stops.filter(s => s.id !== 'tour-start').length;
+  if(unlocked === total) setTimeout(showCertificate, 1400);
 }
 
 function showCertificate(){
   if(document.getElementById('certificateOverlay')) return;
+  const total = stops.filter(s => s.id !== 'tour-start').length;
   const dateStr = new Date().toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' });
   const overlay = document.createElement('div');
   overlay.id = 'certificateOverlay';
@@ -833,8 +855,8 @@ function showCertificate(){
   overlay.innerHTML = `
     <div class="certificate">
       <h2>Tour Complete!</h2>
-      <p class="cert-sub">You've collected all 16 badges.</p>
-      <p class="cert-score">16 / 16</p>
+      <p class="cert-sub">You've collected all ${total} badges.</p>
+      <p class="cert-score">${total} / ${total}</p>
       <p class="cert-date">${dateStr}</p>
       <button type="button" class="certificate-close">Done</button>
     </div>
