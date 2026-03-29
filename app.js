@@ -136,9 +136,8 @@ function renderAll() {
 }
 
 function renderProgress() {
-  const unlocked = Object.keys(progress)
-    .filter(k => progress[k] && k !== 'tour-start').length;
-  const total = stops.filter(s => s.id !== 'tour-start').length;
+  const unlocked = Object.keys(progress).filter(k => progress[k]).length;
+  const total = stops.length;
   const pct = total ? Math.round(unlocked / total * 100) : 0;
   els.fill.style.width = pct + '%';
   els.ptext.textContent = `${unlocked} / ${total} badges`;
@@ -171,7 +170,7 @@ function renderCurrent() {
       </div>
     </div>
     <div class="actions">
-      <button class="btn" id="checkBtn">${targetStop.id === 'tour-start' ? 'Start Here' : (isUnlocked ? 'Re-check in' : 'Check in')}</button>
+      <button class="btn" id="checkBtn">${isUnlocked ? 'Re-check in' : 'Check in'}</button>
       <button class="btn secondary" id="skipBtn">Skip</button>
     </div>
     <div class="hint"><b>Next hint:</b> ${targetStop.hint}</div>
@@ -179,13 +178,6 @@ function renderCurrent() {
   
   document.getElementById('checkBtn').addEventListener('click', () => doCheckIn(targetStop));
   document.getElementById('skipBtn').addEventListener('click', () => {
-    if (targetStop.id === 'tour-start') {
-      const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
-      currentStopId = nextStop.id;
-      renderCurrent();
-      return;
-    }
-
     if (confirm('Skip location check for this stop?')) {
       progress[targetStop.id] = true;
       localStorage.setItem('tt_progress', JSON.stringify(progress));
@@ -196,7 +188,7 @@ function renderCurrent() {
 
 function renderBadges() {
   els.badgeGrid.innerHTML = '';
-  stops.filter(s => s.id !== 'tour-start').forEach(s => {
+  stops.forEach(s => {
     const unlocked = !!progress[s.id];
     const isCurrent = currentStopId === s.id;
     const d = document.createElement('div');
@@ -218,14 +210,6 @@ function renderBadges() {
 }
 
 function doCheckIn(stop) {
-  if (stop.id === 'tour-start') {
-    alert('This is the tour start. No badge is needed here.');
-    const nextStop = stops.find(s => s.id !== 'tour-start' && !progress[s.id]) || stops[stops.length - 1];
-    currentStopId = nextStop.id;
-    renderCurrent();
-    return;
-  }
-
   if (demoMode) {
     progress[stop.id] = true;
     localStorage.setItem('tt_progress', JSON.stringify(progress));
