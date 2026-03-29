@@ -136,8 +136,9 @@ function renderAll() {
 }
 
 function renderProgress() {
-  const unlocked = Object.keys(progress).filter(k => progress[k]).length;
-  const total = stops.length;
+  const unlocked = Object.keys(progress)
+  .filter(k => progress[k] && stops.find(s => s.id === k)?.type === "tree").length;
+  const total = stops.filter(s => s.type === "tree").length;
   const pct = total ? Math.round(unlocked / total * 100) : 0;
   els.fill.style.width = pct + '%';
   els.ptext.textContent = `${unlocked} / ${total} badges`;
